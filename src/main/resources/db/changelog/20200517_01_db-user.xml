@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="1" author="Max">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM pg_roles WHERE rolname = 'vertex';
+            </sqlCheck>
+        </preConditions>
+        <comment>Create DB user account.</comment>
+        <sql>
+            CREATE USER vertex WITH PASSWORD 'vertexPassword';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

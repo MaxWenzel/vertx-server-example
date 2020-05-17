@@ -1,0 +1,122 @@
+plugins {
+    id 'java'
+}
+
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '6.4.0'
+    id 'org.liquibase.gradle' version '2.0.2'
+}
+
+group 'org.devzone'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // liquibase
+    // https://github.com/liquibase/liquibase-gradle-plugin
+    liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:2.0.1'
+    liquibaseRuntime 'postgresql:postgresql:9.1-901-1.jdbc4'
+    liquibaseRuntime "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
+
+
+    // test
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+task pullPostgresImage(type: DockerPullImage) {
+    group = 'docker'
+    ext {
+        imageName = 'postgres'
+        imageTag = '12'
+    }
+    description = 'Pull PostgreSQL image'
+    image = "${imageName}:${imageTag}"
+}
+
+task createPostgresContainer(type: DockerCreateContainer, dependsOn: pullPostgresImage) {
+    group = 'docker'
+    ext {
+        pgContainerName = "demo-postgres"
+        dbName = "vertx_db"
+        dbPort = 5432
+        dbPassword = 'dev_password'
+    }
+    description = 'Creates PostgreSQL container'
+    containerName = pgContainerName
+    imageId = "${pullPostgresImage.imageName}:${pullPostgresImage.imageTag}"
+
+    hostConfig.portBindings = ["${dbPort}:5432"]
+    hostConfig.autoRemove = true
+
+    envVars = [
+            POSTGRES_PASSWORD: "${dbPassword}",
+            POSTGRES_DB: "${dbName}"
+    ]
+
+    onError { e ->
+        if (e.class.simpleName in ['BadRequestException', 'ConflictException']) {
+            logger.warn 'Container already exists'
+        } else {
+            throw e
+        }
+    }
+}
+
+task startPostgresContainer(type: DockerStartContainer, dependsOn: createPostgresContainer) {
+    group = 'docker'
+    description = 'Starts Postgres container'
+    containerId = createPostgresContainer.pgContainerName
+    onError { e ->
+        if (e.class.simpleName == 'NotModifiedException') {
+            logger.warn 'Container already started'
+        } else {
+            throw e
+        }
+    }
+    onComplete {
+        logger.info "Postgres is listening on port ${createPostgresContainer.dbPort}"
+    }
+}
+
+task stopPostgresContainer(type: DockerStopContainer) {
+    group = 'docker'
+    description = 'Stops Postgres container'
+    containerId = createPostgresContainer.pgContainerName
+    onError { e ->
+        if (e.class.simpleName == 'NotModifiedException') {
+            logger.warn 'Container already stopped'
+        } else {
+            throw e
+        }
+    }
+}
+
+task devdb {
+    println "executing dev db update"
+
+    liquibase {
+        activities {
+            main {
+                changeLogFile 'src/main/resources/db/changelog/db.changelog-master.xml'
+                url 'jdbc:postgresql://localhost/vertx_db'
+                username 'postgres'
+                password 'dev_password'
+            }
+        }
+    }
+}
