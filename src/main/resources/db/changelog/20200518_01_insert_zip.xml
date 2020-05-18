@@ -4657,7 +4657,6 @@
             insert into postalcode (locality, postalcode, state) values ('Hameln', '31789', 'Niedersachsen');
             insert into postalcode (locality, postalcode, state) values ('Hamersen', '27419', 'Niedersachsen');
             insert into postalcode (locality, postalcode, state) values ('Hamfelde', '22929', 'Schleswig-Holstein');
-            insert into postalcode (locality, postalcode, state) values ('Hamfelde', '22929', 'Schleswig-Holstein');
             insert into postalcode (locality, postalcode, state) values ('Hamm', '59063', 'Nordrhein-Westfalen');
             insert into postalcode (locality, postalcode, state) values ('Hamm', '59065', 'Nordrhein-Westfalen');
             insert into postalcode (locality, postalcode, state) values ('Hamm', '59067', 'Nordrhein-Westfalen');
@@ -6349,7 +6348,6 @@
             insert into postalcode (locality, postalcode, state) values ('Koserow', '17459', 'Mecklenburg-Vorpommern');
             insert into postalcode (locality, postalcode, state) values ('Kospoda', '7806', 'Thüringen');
             insert into postalcode (locality, postalcode, state) values ('Kößlarn', '94149', 'Bayern');
-            insert into postalcode (locality, postalcode, state) values ('Köthel', '22929', 'Schleswig-Holstein');
             insert into postalcode (locality, postalcode, state) values ('Köthel', '22929', 'Schleswig-Holstein');
             insert into postalcode (locality, postalcode, state) values ('Köthen (Anhalt)', '6366', 'Sachsen-Anhalt');
             insert into postalcode (locality, postalcode, state) values ('Köthen (Anhalt)', '6369', 'Sachsen-Anhalt');
