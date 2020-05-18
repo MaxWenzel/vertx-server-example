@@ -7,5 +7,7 @@
 
 <!--    <include file="classpath:/db/changelog/20200517_01_db-user.xml"/>-->
     <include file="20200517_01_db-user.xml" relativeToChangelogFile="true"/>
+    <include file="20200517_02_create_table_postalcode.xml" relativeToChangelogFile="true"/>
+    <include file="20200518_01_insert_zip.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
