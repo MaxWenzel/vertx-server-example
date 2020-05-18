@@ -7,7 +7,7 @@ Docker should be installed and running
 
 ## Startup
 
-1. 
+1. Create tables
 ```bash
-
+gradle task devdb update
 ```

@@ -15,6 +15,10 @@ repositories {
 }
 
 dependencies {
+    // vertx
+    compile 'io.vertx:vertx-core:3.9.0'
+    compile 'io.vertx:vertx-web:3.9.0'
+
     // liquibase
     // https://github.com/liquibase/liquibase-gradle-plugin
     liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
@@ -22,6 +26,8 @@ dependencies {
     liquibaseRuntime 'postgresql:postgresql:9.1-901-1.jdbc4'
     liquibaseRuntime "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
 
+    // logging
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     // test
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
