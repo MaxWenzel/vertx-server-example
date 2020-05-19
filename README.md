@@ -7,10 +7,19 @@ Docker should be installed and running
 
 ## Startup
 
+1. Create Docker Postgres Container
+    ```bash
+    gradle task createPostgresContainer
+    ```
+1. Start Docker Postgres Container
+    ```bash
+    gradle task startPostgresContainer
+    ```
 1. Create tables
-```bash
-gradle task devdb update
-```
+    ```bash
+    ./gradlew task devdb update
+    ```
+
 
 ## Building
 
