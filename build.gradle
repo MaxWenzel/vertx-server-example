@@ -1,8 +1,7 @@
 plugins {
     id 'java'
-}
-
-plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.bmuschko.docker-remote-api' version '6.4.0'
     id 'org.liquibase.gradle' version '2.0.2'
 }
@@ -14,10 +13,22 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    vertxVersion = '3.9.0'
+    junitJupiterEngineVersion = '5.6.0'
+}
+
+def mainVerticleName = 'org.devzone.vertx.MainVerticle'
+def watchForChange = 'src/**/*'
+def doOnChange = './gradlew classes'
+
 dependencies {
     // vertx
-    compile 'io.vertx:vertx-core:3.9.0'
-    compile 'io.vertx:vertx-web:3.9.0'
+    implementation "io.vertx:vertx-core:$vertxVersion"
+    implementation "io.vertx:vertx-web:$vertxVersion"
+    implementation "io.vertx:vertx-lang-js:$vertxVersion"
+    implementation "io.vertx:vertx-config:$vertxVersion"
+    testImplementation "io.vertx:vertx-junit5:$vertxVersion"
 
     // liquibase
     // https://github.com/liquibase/liquibase-gradle-plugin
@@ -30,8 +41,8 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     // test
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterEngineVersion"
 }
 
 test {
@@ -57,10 +68,10 @@ task pullPostgresImage(type: DockerPullImage) {
 task createPostgresContainer(type: DockerCreateContainer, dependsOn: pullPostgresImage) {
     group = 'docker'
     ext {
-        pgContainerName = "demo-postgres"
+        pgContainerName = "vertx-postgres"
         dbName = "vertx_db"
         dbPort = 5432
-        dbPassword = 'dev_password'
+        dbPassword = 'devPassword'
     }
     description = 'Creates PostgreSQL container'
     containerName = pgContainerName
@@ -112,17 +123,47 @@ task stopPostgresContainer(type: DockerStopContainer) {
     }
 }
 
-task devdb {
-    println "executing dev db update"
-
+task devdb() {
     liquibase {
         activities {
             main {
                 changeLogFile 'src/main/resources/db/changelog/db.changelog-master.xml'
                 url 'jdbc:postgresql://localhost/vertx_db'
                 username 'postgres'
-                password 'dev_password'
+                password 'devPassword'
             }
         }
     }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+shadowJar {
+    archiveClassifier = 'fat'
+    manifest {
+        attributes 'Main-Verticle': mainVerticleName
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
+}
+
+run {
+    args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }

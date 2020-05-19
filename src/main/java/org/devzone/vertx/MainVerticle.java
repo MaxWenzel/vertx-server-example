@@ -1,8 +1,12 @@
 package org.devzone.vertx;
 
+import io.vertx.config.*;
 import io.vertx.core.*;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.devzone.vertx.config.ConfigurationKeys;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -13,16 +17,58 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start(Promise<Void> startPromise) throws Exception {
+    public void start() throws Exception {
         logger.info("Start the server");
 
-        DeploymentOptions restOpts = new DeploymentOptions()
-                .setWorkerPoolSize(30);
+        ConfigRetrieverOptions configRetrieverOptions = getConfigRetrieverOptions();
+        ConfigRetriever configRetriever = ConfigRetriever.create(vertx, configRetrieverOptions);
 
-        DeploymentOptions workerOpts = new DeploymentOptions()
-                .setWorker(true)
-                .setWorkerPoolSize(30);
+        // getConfig is called for initial loading
+        configRetriever.getConfig(
+                ar -> {
+                    int instances = Runtime.getRuntime().availableProcessors();
+                    DeploymentOptions deploymentOptions =
+                            new DeploymentOptions()
+                                    .setInstances(2) // use instances
+                                    .setWorkerPoolSize(30)
+                                    .setConfig(ar.result());
+                    vertx.deployVerticle(RestVerticle.class, deploymentOptions);
+                    vertx.deployVerticle(DatabaseVerticle.class.getName());
+                });
 
-        vertx.deployVerticle(RestVerticle.class.getName(), restOpts);
     }
+
+    private static ConfigRetrieverOptions getConfigRetrieverOptions() {
+        JsonObject classpathFileConfiguration = new JsonObject().put("path", "application.json");
+        ConfigStoreOptions classpathFile =
+                new ConfigStoreOptions()
+                        .setType("file")
+                        .setConfig(classpathFileConfiguration);
+
+        JsonObject envFileConfiguration = new JsonObject().put("path", "/etc/default/demo");
+        ConfigStoreOptions envFile =
+                new ConfigStoreOptions()
+                        .setType("file")
+                        .setFormat("properties")
+                        .setConfig(envFileConfiguration)
+                        .setOptional(true);
+
+        JsonArray envVarKeys = new JsonArray();
+        for (ConfigurationKeys key : ConfigurationKeys.values()) {
+            envVarKeys.add(key.name());
+        }
+        JsonObject envVarConfiguration = new JsonObject().put("keys", envVarKeys);
+        ConfigStoreOptions environment = new ConfigStoreOptions()
+                .setType("env")
+                .setConfig(envVarConfiguration)
+                .setOptional(true);
+
+        return new ConfigRetrieverOptions()
+                .addStore(classpathFile) // local values : exhaustive list with sane defaults
+                .addStore(environment)   // Container / PaaS friendly to override defaults
+                //.addStore(envFile)       // external file, IaaS friendly to override defaults and config hot reloading
+                .setScanPeriod(5000);
+    }
+
+
 }
