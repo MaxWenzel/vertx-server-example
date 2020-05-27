@@ -142,6 +142,7 @@ java {
 }
 
 shadowJar {
+    mainClassName = 'org.devzone.vertx.MainVerticle'
     archiveClassifier = 'fat'
     manifest {
         attributes 'Main-Verticle': mainVerticleName

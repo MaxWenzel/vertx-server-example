@@ -26,11 +26,11 @@ public class DatabaseVerticle extends AbstractVerticle {
     public void start() {
 
         PgConnectOptions connectOptions = new PgConnectOptions()
-                .setPort(5432)
-                .setHost("localhost")
-                .setDatabase("vertx_db")
-                .setUser("postgres")
-                .setPassword("devPassword");
+                .setPort( config().getInteger("DATABASE_PORT"))
+                .setHost(config().getString("DATABASE_HOST"))
+                .setDatabase(config().getString("DATABASE_NAME"))
+                .setUser(config().getString("DATABASE_USER"))
+                .setPassword(config().getString("DATABASE_PASSWORD"));
 
         // Pool options
         PoolOptions poolOptions = new PoolOptions()
@@ -81,8 +81,5 @@ public class DatabaseVerticle extends AbstractVerticle {
                 }
             });
         });
-
-
     }
-
 }

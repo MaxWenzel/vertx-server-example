@@ -16,7 +16,6 @@ public class GlobalHandlers {
         int status;
         String msg;
 
-        // Get thrown exception from context
         Throwable failure = ctx.failure();
 
         if(CustomException.class.isAssignableFrom(failure.getClass())){

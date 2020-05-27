@@ -1,3 +1,8 @@
 {
-  "http.port" : 8082
+  "DATABASE_PORT" : 5432,
+  "DATABASE_HOST" : "localhost",
+  "DATABASE_NAME" : "vertx_db",
+  "DATABASE_USER" : "postgres",
+  "DATABASE_PASSWORD" : "devPassword",
+  "HTTP_PORT" : 8082
 }

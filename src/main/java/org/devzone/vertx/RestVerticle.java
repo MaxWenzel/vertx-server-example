@@ -59,7 +59,7 @@ public class RestVerticle extends AbstractVerticle {
         });
 
         // Create the http server and pass it the router
-        int port = config().getInteger("http.port", 8080);
+        int port = config().getInteger("HTTP_PORT", 8080);
         logger.info("Using server port {}", port);
         vertx.createHttpServer()
                 .requestHandler(mainRouter::handle).listen(port);

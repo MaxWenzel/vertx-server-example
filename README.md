@@ -7,6 +7,10 @@ Docker should be installed and running
 
 ## Startup
 
+1. Pull Docker Postgres Image
+    ```bash
+    gradle task pullPostgresImage
+    ```
 1. Create Docker Postgres Container
     ```bash
     gradle task createPostgresContainer
@@ -37,3 +41,16 @@ To run your application:
 ```bash
 ./gradlew clean run
 ```
+
+Create deployable artifact
+```bash
+ ./gradlew task shadowJar
+```
+
+## Usage
+
+1. Start the application
+    ```bash
+    java -jar vertx-server-example-1.0-SNAPSHOT-fat.jar
+    ```
+1. Call example URL http://localhost:8082/postalcodes/55481
