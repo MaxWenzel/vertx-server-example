@@ -29,13 +29,13 @@ public class MainVerticle extends AbstractVerticle {
                     int instances = Runtime.getRuntime().availableProcessors();
                     DeploymentOptions deploymentOptionsRest =
                             new DeploymentOptions()
-                                    .setInstances(2) // use instances
+                                    .setInstances(instances) // use instances
                                     .setWorkerPoolSize(30)
                                     .setConfig(ar.result());
                     vertx.deployVerticle(RestVerticle.class, deploymentOptionsRest);
                     DeploymentOptions deploymentOptionsDB =
                             new DeploymentOptions()
-                                    .setInstances(2) // use instances
+                                    .setInstances(instances) // use instances
                                     .setWorkerPoolSize(30)
                                     .setConfig(ar.result());
                     vertx.deployVerticle(DatabaseVerticle.class, deploymentOptionsDB);

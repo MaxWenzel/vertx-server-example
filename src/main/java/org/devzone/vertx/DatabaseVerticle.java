@@ -47,8 +47,6 @@ public class DatabaseVerticle extends AbstractVerticle {
 
                 if (ar.succeeded()) {
 
-                    logger.info("Connected");
-
                     // Obtain our connection
                     SqlConnection conn = ar.result();
 
@@ -61,7 +59,9 @@ public class DatabaseVerticle extends AbstractVerticle {
                                 dbResult.result().forEach(row ->
                                         addresses.add(new Address(row.getString("postalcode"), row.getString("locality"), row.getString("state")))
                                 );
-                                logger.info("Found {} addresses", addresses.size());
+                                if (addresses.isEmpty()) {
+                                    logger.warn("Cannot find locality for postalCode {}", postalCode);
+                                }
                                 String jsonArray = "[]";
                                 try {
                                     jsonArray = mapper.writeValueAsString(addresses);
